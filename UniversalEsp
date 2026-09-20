@@ -1,6 +1,5 @@
 -- ==========================================================
--- GRAVES HUB - ULTIMATE ESP EDITION (FIXED)
--- Key: 123gravehub
+-- GRAVES HUB - ULTIMATE ESP EDITION (NO KEY + UPDATES)
 -- ==========================================================
 
 local Players = game:GetService("Players")
@@ -14,7 +13,6 @@ local LocalPlayer = Players.LocalPlayer
 -- CONFIGURATION
 -- ==========================================================
 local Config = {
-	Key = "123gravehub",
 	ESP = {
 		Enabled = false,
 		Box = true,
@@ -25,6 +23,46 @@ local Config = {
 		TeamCheck = true,
 		MaxDistance = 500,
 		Color = Color3.fromRGB(150, 80, 255)
+	}
+}
+
+local UpdateLog = {
+	{
+		Version = "v2.0.0",
+		Date = "Latest",
+		Tag = "NEW",
+		TagColor = Color3.fromRGB(50, 205, 50),
+		Changes = {
+			"Removed key verification system",
+			"Added Update Log tab",
+			"Redesigned sidebar with tabs",
+			"Improved UI responsiveness",
+			"Optimized ESP performance"
+		}
+	},
+	{
+		Version = "v1.5.0",
+		Date = "Previous",
+		Tag = "IMPROVED",
+		TagColor = Color3.fromRGB(150, 80, 255),
+		Changes = {
+			"Added health bar ESP",
+			"Added distance display",
+			"Fixed tracer alignment",
+			"Added color picker"
+		}
+	},
+	{
+		Version = "v1.0.0",
+		Date = "Initial",
+		Tag = "RELEASE",
+		TagColor = Color3.fromRGB(100, 100, 120),
+		Changes = {
+			"Initial Graves Hub release",
+			"Basic ESP with box and name",
+			"Team check support",
+			"Draggable UI"
+		}
 	}
 }
 
@@ -39,6 +77,7 @@ local Theme = {
 	AccentDark = Color3.fromRGB(100, 50, 180),
 	Green = Color3.fromRGB(50, 205, 50),
 	Red = Color3.fromRGB(255, 65, 65),
+	Yellow = Color3.fromRGB(255, 200, 60),
 	Border = Color3.fromRGB(38, 38, 45)
 }
 
@@ -86,7 +125,7 @@ local screenGui = create("ScreenGui", {
 })
 
 -- ==========================================================
--- FLOATING TOGGLE BUTTON (Created FIRST so key system can use it)
+-- FLOATING TOGGLE BUTTON
 -- ==========================================================
 local toggleBtn = create("TextButton", {
 	Name = "ToggleBtn",
@@ -103,7 +142,6 @@ local toggleBtn = create("TextButton", {
 addCorner(toggleBtn, 27)
 addStroke(toggleBtn, Theme.AccentDark, 2)
 
--- Hover Effect on Toggle
 toggleBtn.MouseEnter:Connect(function()
 	TweenService:Create(toggleBtn, TweenInfo.new(0.2), {BackgroundColor3 = Theme.AccentDark}):Play()
 end)
@@ -184,82 +222,7 @@ local percentageLabel = create("TextLabel", {
 })
 
 -- ==========================================================
--- KEY SYSTEM
--- ==========================================================
-local keyFrame = create("Frame", {
-	Name = "KeySystem",
-	Size = UDim2.new(0, 380, 0, 260),
-	Position = UDim2.new(0.5, 0, 0.5, 0),
-	AnchorPoint = Vector2.new(0.5, 0.5),
-	BackgroundColor3 = Theme.Background,
-	BorderSizePixel = 0,
-	Visible = false,
-	ZIndex = 50,
-	Parent = screenGui
-})
-addCorner(keyFrame, 15)
-addStroke(keyFrame, Theme.Border, 1)
-
-create("UIGradient", {
-	Color = ColorSequence.new(Theme.Background, Color3.fromRGB(30, 20, 45)),
-	Rotation = 45,
-	Parent = keyFrame
-})
-
-create("TextLabel", {
-	Size = UDim2.new(1, 0, 0, 40),
-	Position = UDim2.new(0, 0, 0, 30),
-	BackgroundTransparency = 1,
-	Text = "Graves Authentication",
-	TextColor3 = Theme.TextPrimary,
-	Font = FontBold,
-	TextSize = 24,
-	Parent = keyFrame
-})
-
-create("TextLabel", {
-	Size = UDim2.new(1, 0, 0, 20),
-	Position = UDim2.new(0, 0, 0, 65),
-	BackgroundTransparency = 1,
-	Text = "Enter the access key to continue",
-	TextColor3 = Theme.TextSecondary,
-	Font = Font,
-	TextSize = 14,
-	Parent = keyFrame
-})
-
-local keyInput = create("TextBox", {
-	Size = UDim2.new(0, 320, 0, 50),
-	Position = UDim2.new(0.5, 0, 0.5, 15),
-	AnchorPoint = Vector2.new(0.5, 0.5),
-	BackgroundColor3 = Theme.Card,
-	Text = "",
-	PlaceholderText = "Enter Key...",
-	TextColor3 = Theme.TextPrimary,
-	PlaceholderColor3 = Theme.TextSecondary,
-	Font = Font,
-	TextSize = 15,
-	Parent = keyFrame
-})
-addCorner(keyInput, 10)
-addStroke(keyInput, Theme.Border, 1)
-
-local submitBtn = create("TextButton", {
-	Size = UDim2.new(0, 320, 0, 50),
-	Position = UDim2.new(0.5, 0, 0.8, 10),
-	AnchorPoint = Vector2.new(0.5, 0.5),
-	BackgroundColor3 = Theme.Accent,
-	Text = "Unlock",
-	TextColor3 = Theme.TextPrimary,
-	Font = FontBold,
-	TextSize = 16,
-	Parent = keyFrame
-})
-addCorner(submitBtn, 10)
-applyHover(submitBtn, Theme.Accent, Theme.AccentDark)
-
--- ==========================================================
--- MAIN UI FRAME (Created before key logic so it exists)
+-- MAIN UI FRAME
 -- ==========================================================
 local mainFrame = create("Frame", {
 	Name = "MainFrame",
@@ -282,70 +245,22 @@ create("UIGradient", {
 })
 
 -- ==========================================================
--- KEY SYSTEM LOGIC (Now that toggleBtn and mainFrame exist)
--- ==========================================================
-submitBtn.MouseButton1Click:Connect(function()
-	if keyInput.Text:lower() == Config.Key then
-		submitBtn.Text = "Success!"
-		submitBtn.BackgroundColor3 = Theme.Green
-		task.wait(0.5)
-		
-		-- Fade out key frame
-		local fadeOut = TweenService:Create(keyFrame, TweenInfo.new(0.4), {BackgroundTransparency = 1})
-		fadeOut:Play()
-		for _, v in pairs(keyFrame:GetDescendants()) do
-			if v:IsA("TextLabel") or v:IsA("TextBox") or v:IsA("TextButton") then
-				TweenService:Create(v, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
-				if v:IsA("TextBox") or v:IsA("TextButton") then
-					TweenService:Create(v, TweenInfo.new(0.4), {BackgroundTransparency = 1}):Play()
-				end
-			end
-		end
-		task.wait(0.4)
-		keyFrame:Destroy()
-		
-		-- SHOW THE MAIN UI AND TOGGLE BUTTON
-		toggleBtn.Visible = true
-		
-		-- Auto-open the UI for the user
-		mainFrame.Visible = true
-		mainFrame.Size = UDim2.new(0, 0, 0, 0)
-		TweenService:Create(mainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 850, 0, 580)}):Play()
-	else
-		keyInput.Text = ""
-		keyInput.PlaceholderText = "Incorrect Key!"
-		keyInput.PlaceholderColor3 = Theme.Red
-		local originalPos = keyFrame.Position
-		for i = 1, 4 do
-			keyFrame.Position = originalPos + UDim2.new(0, 6, 0, 0)
-			task.wait(0.03)
-			keyFrame.Position = originalPos - UDim2.new(0, 6, 0, 0)
-			task.wait(0.03)
-		end
-		keyFrame.Position = originalPos
-	end
-end)
-
--- ==========================================================
--- LOADING ANIMATION (Runs and then shows key system)
+-- LOADING ANIMATION -> DIRECTLY SHOW MAIN UI (no key system)
 -- ==========================================================
 task.spawn(function()
-	-- Fade in loading text
 	TweenService:Create(logoLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
 	task.wait(0.2)
 	TweenService:Create(subLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
 	TweenService:Create(percentageLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
 	
-	-- Fill bar
 	for i = 1, 100 do
 		TweenService:Create(barFill, TweenInfo.new(0.03), {Size = UDim2.new(i/100, 0, 1, 0)}):Play()
 		percentageLabel.Text = i .. "%"
 		task.wait(0.02)
 	end
 	
-	task.wait(0.5)
+	task.wait(0.4)
 	
-	-- Fade out loading screen
 	local fadeOut = TweenService:Create(loadingFrame, TweenInfo.new(0.5), {BackgroundTransparency = 1})
 	fadeOut:Play()
 	for _, v in pairs(loadingContent:GetDescendants()) do
@@ -358,16 +273,17 @@ task.spawn(function()
 	fadeOut.Completed:Wait()
 	loadingFrame:Destroy()
 	
-	-- SHOW KEY SYSTEM
-	keyFrame.Visible = true
-	keyFrame.Size = UDim2.new(0, 0, 0, 0)
-	TweenService:Create(keyFrame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 380, 0, 260)}):Play()
+	-- Show main UI directly
+	toggleBtn.Visible = true
+	mainFrame.Visible = true
+	mainFrame.Size = UDim2.new(0, 0, 0, 0)
+	TweenService:Create(mainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 850, 0, 580)}):Play()
 end)
 
 -- ==========================================================
 -- UI OPEN/CLOSE LOGIC
 -- ==========================================================
-local uiOpen = true -- Since we auto-open it, start as true
+local uiOpen = true
 toggleBtn.MouseButton1Click:Connect(function()
 	uiOpen = not uiOpen
 	if uiOpen then
@@ -437,15 +353,49 @@ create("TextLabel", {
 	Parent = topBar
 })
 
--- Sidebar
-local sidebar = create("Frame", { Name = "Sidebar", Size = UDim2.new(0, 230, 1, -55), Position = UDim2.new(0, 0, 0, 55), BackgroundColor3 = Theme.Sidebar, Parent = mainFrame })
-create("Frame", { Size = UDim2.new(0, 15, 0, 15), Position = UDim2.new(0, 0, 0, 0), BackgroundColor3 = Theme.Sidebar, BorderSizePixel = 0, Parent = sidebar, ZIndex = 2 })
+-- Version badge in top bar
+local versionBadge = create("Frame", {
+	Size = UDim2.new(0, 60, 0, 22),
+	Position = UDim2.new(0, 145, 0.5, 0),
+	AnchorPoint = Vector2.new(0, 0.5),
+	BackgroundColor3 = Theme.Accent,
+	Parent = topBar
+})
+addCorner(versionBadge, 6)
+create("TextLabel", {
+	Size = UDim2.new(1, 0, 1, 0),
+	BackgroundTransparency = 1,
+	Text = "v2.0.0",
+	TextColor3 = Theme.TextPrimary,
+	Font = FontBold,
+	TextSize = 11,
+	Parent = versionBadge
+})
+
+-- ==========================================================
+-- SIDEBAR WITH TABS
+-- ==========================================================
+local sidebar = create("Frame", { 
+	Name = "Sidebar", 
+	Size = UDim2.new(0, 230, 1, -55), 
+	Position = UDim2.new(0, 0, 0, 55), 
+	BackgroundColor3 = Theme.Sidebar, 
+	Parent = mainFrame 
+})
+create("Frame", { 
+	Size = UDim2.new(0, 15, 0, 15), 
+	Position = UDim2.new(0, 0, 0, 0), 
+	BackgroundColor3 = Theme.Sidebar, 
+	BorderSizePixel = 0, 
+	Parent = sidebar, 
+	ZIndex = 2 
+})
 
 create("TextLabel", {
 	Size = UDim2.new(1, -30, 0, 30),
 	Position = UDim2.new(0, 25, 0, 15),
 	BackgroundTransparency = 1,
-	Text = "ESP SETTINGS",
+	Text = "NAVIGATION",
 	TextColor3 = Theme.TextSecondary,
 	Font = FontBold,
 	TextSize = 11,
@@ -453,17 +403,152 @@ create("TextLabel", {
 	Parent = sidebar
 })
 
+-- Tab buttons container
+local tabContainer = create("Frame", {
+	Size = UDim2.new(1, -20, 0, 120),
+	Position = UDim2.new(0, 10, 0, 50),
+	BackgroundTransparency = 1,
+	Parent = sidebar
+})
+create("UIListLayout", { Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder, Parent = tabContainer })
+
 -- ==========================================================
 -- CONTENT AREA
 -- ==========================================================
-local contentArea = create("Frame", { Name = "Content", Size = UDim2.new(1, -230, 1, -55), Position = UDim2.new(0, 230, 0, 55), BackgroundTransparency = 1, Parent = mainFrame })
+local contentArea = create("Frame", { 
+	Name = "Content", 
+	Size = UDim2.new(1, -230, 1, -55), 
+	Position = UDim2.new(0, 230, 0, 55), 
+	BackgroundTransparency = 1, 
+	Parent = mainFrame 
+})
 addPadding(contentArea, 25, 25, 25, 25)
 
-local page = create("ScrollingFrame", {
-	Name = "ESPPage", Size = UDim2.new(1, 0, 1, 0), BackgroundTransparency = 1, BorderSizePixel = 0,
-	ScrollBarThickness = 4, ScrollBarImageColor3 = Theme.Border, CanvasSize = UDim2.new(0, 0, 0, 0), Parent = contentArea
+-- ESP Page
+local espPage = create("ScrollingFrame", {
+	Name = "ESPPage", 
+	Size = UDim2.new(1, 0, 1, 0), 
+	BackgroundTransparency = 1, 
+	BorderSizePixel = 0,
+	ScrollBarThickness = 4, 
+	ScrollBarImageColor3 = Theme.Border, 
+	CanvasSize = UDim2.new(0, 0, 0, 0), 
+	Visible = true,
+	Parent = contentArea
 })
-create("UIListLayout", { Padding = UDim.new(0, 12), SortOrder = Enum.SortOrder.LayoutOrder, Parent = page })
+create("UIListLayout", { Padding = UDim.new(0, 12), SortOrder = Enum.SortOrder.LayoutOrder, Parent = espPage })
+
+-- Update Log Page
+local updatePage = create("ScrollingFrame", {
+	Name = "UpdatePage", 
+	Size = UDim2.new(1, 0, 1, 0), 
+	BackgroundTransparency = 1, 
+	BorderSizePixel = 0,
+	ScrollBarThickness = 4, 
+	ScrollBarImageColor3 = Theme.Border, 
+	CanvasSize = UDim2.new(0, 0, 0, 0), 
+	Visible = false,
+	Parent = contentArea
+})
+create("UIListLayout", { Padding = UDim.new(0, 14), SortOrder = Enum.SortOrder.LayoutOrder, Parent = updatePage })
+
+-- ==========================================================
+-- TAB BUTTON CREATOR
+-- ==========================================================
+local activeTab = "ESP"
+local tabButtons = {}
+
+local function createTabButton(text, icon, order, tabName)
+	local btn = create("TextButton", {
+		Name = tabName .. "Tab",
+		Size = UDim2.new(1, 0, 0, 44),
+		BackgroundColor3 = Theme.Card,
+		Text = "",
+		LayoutOrder = order,
+		Parent = tabContainer
+	})
+	addCorner(btn, 10)
+	addStroke(btn, Theme.Border, 1)
+	
+	-- Accent indicator (left bar)
+	local indicator = create("Frame", {
+		Size = UDim2.new(0, 3, 0, 0),
+		Position = UDim2.new(0, 0, 0.5, 0),
+		AnchorPoint = Vector2.new(0, 0.5),
+		BackgroundColor3 = Theme.Accent,
+		BorderSizePixel = 0,
+		Parent = btn
+	})
+	addCorner(indicator, 2)
+	
+	local iconLabel = create("TextLabel", {
+		Size = UDim2.new(0, 30, 1, 0),
+		Position = UDim2.new(0, 15, 0, 0),
+		BackgroundTransparency = 1,
+		Text = icon,
+		TextColor3 = Theme.TextSecondary,
+		Font = FontBold,
+		TextSize = 16,
+		Parent = btn
+	})
+	
+	local textLabel = create("TextLabel", {
+		Size = UDim2.new(1, -55, 1, 0),
+		Position = UDim2.new(0, 50, 0, 0),
+		BackgroundTransparency = 1,
+		Text = text,
+		TextColor3 = Theme.TextSecondary,
+		Font = FontBold,
+		TextSize = 13,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = btn
+	})
+	
+	local function setActive(active)
+		TweenService:Create(btn, TweenInfo.new(0.2), {
+			BackgroundColor3 = active and Theme.CardHover or Theme.Card
+		}):Play()
+		TweenService:Create(indicator, TweenInfo.new(0.2), {
+			Size = active and UDim2.new(0, 3, 0, 24) or UDim2.new(0, 3, 0, 0)
+		}):Play()
+		TweenService:Create(textLabel, TweenInfo.new(0.2), {
+			TextColor3 = active and Theme.TextPrimary or Theme.TextSecondary
+		}):Play()
+		TweenService:Create(iconLabel, TweenInfo.new(0.2), {
+			TextColor3 = active and Theme.Accent or Theme.TextSecondary
+		}):Play()
+	end
+	
+	btn.MouseEnter:Connect(function()
+		if activeTab ~= tabName then
+			TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = Theme.CardHover}):Play()
+		end
+	end)
+	btn.MouseLeave:Connect(function()
+		if activeTab ~= tabName then
+			TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = Theme.Card}):Play()
+		end
+	end)
+	
+	btn.MouseButton1Click:Connect(function()
+		if activeTab == tabName then return end
+		activeTab = tabName
+		
+		for name, data in pairs(tabButtons) do
+			data.setActive(name == tabName)
+		end
+		
+		espPage.Visible = (tabName == "ESP")
+		updatePage.Visible = (tabName == "Update")
+	end)
+	
+	tabButtons[tabName] = { setActive = setActive }
+	setActive(tabName == activeTab)
+	return btn
+end
+
+createTabButton("ESP Settings", "◆", 1, "ESP")
+createTabButton("Update Log", "★", 2, "Update")
 
 -- ==========================================================
 -- COMPONENTS
@@ -553,17 +638,17 @@ end
 -- ==========================================================
 -- POPULATE ESP PAGE
 -- ==========================================================
-createToggle(page, "Enable ESP", Config.ESP.Enabled, function(state) Config.ESP.Enabled = state end)
-createToggle(page, "Show Box", Config.ESP.Box, function(state) Config.ESP.Box = state end)
-createToggle(page, "Show Name", Config.ESP.Name, function(state) Config.ESP.Name = state end)
-createToggle(page, "Show Distance", Config.ESP.Distance, function(state) Config.ESP.Distance = state end)
-createToggle(page, "Show Health Bar", Config.ESP.Health, function(state) Config.ESP.Health = state end)
-createToggle(page, "Show Tracers", Config.ESP.Tracers, function(state) Config.ESP.Tracers = state end)
-createToggle(page, "Team Check", Config.ESP.TeamCheck, function(state) Config.ESP.TeamCheck = state end)
-createSlider(page, "Max Distance", 50, 2000, Config.ESP.MaxDistance, function(val) Config.ESP.MaxDistance = val end)
+createToggle(espPage, "Enable ESP", Config.ESP.Enabled, function(state) Config.ESP.Enabled = state end)
+createToggle(espPage, "Show Box", Config.ESP.Box, function(state) Config.ESP.Box = state end)
+createToggle(espPage, "Show Name", Config.ESP.Name, function(state) Config.ESP.Name = state end)
+createToggle(espPage, "Show Distance", Config.ESP.Distance, function(state) Config.ESP.Distance = state end)
+createToggle(espPage, "Show Health Bar", Config.ESP.Health, function(state) Config.ESP.Health = state end)
+createToggle(espPage, "Show Tracers", Config.ESP.Tracers, function(state) Config.ESP.Tracers = state end)
+createToggle(espPage, "Team Check", Config.ESP.TeamCheck, function(state) Config.ESP.TeamCheck = state end)
+createSlider(espPage, "Max Distance", 50, 2000, Config.ESP.MaxDistance, function(val) Config.ESP.MaxDistance = val end)
 
 -- Color Picker
-local colorFrame = create("Frame", { Size = UDim2.new(1, 0, 0, 130), BackgroundColor3 = Theme.Card, Parent = page })
+local colorFrame = create("Frame", { Size = UDim2.new(1, 0, 0, 130), BackgroundColor3 = Theme.Card, Parent = espPage })
 addCorner(colorFrame, 10)
 addStroke(colorFrame, Theme.Border, 1)
 
@@ -627,6 +712,176 @@ end
 makeColorSlider(redBtn, redFill, 1)
 makeColorSlider(greenBtn, greenFill, 2)
 makeColorSlider(blueBtn, blueFill, 3)
+
+-- ==========================================================
+-- POPULATE UPDATE LOG PAGE
+-- ==========================================================
+
+-- Header card
+local headerCard = create("Frame", {
+	Size = UDim2.new(1, 0, 0, 90),
+	BackgroundColor3 = Theme.Card,
+	Parent = updatePage
+})
+addCorner(headerCard, 10)
+addStroke(headerCard, Theme.Border, 1)
+
+local headerGradient = create("UIGradient", {
+	Color = ColorSequence.new(Theme.Accent, Theme.AccentDark),
+	Rotation = 45,
+	Parent = headerCard
+})
+create("UICorner", { CornerRadius = UDim.new(0, 10), Parent = headerCard })
+
+create("TextLabel", {
+	Size = UDim2.new(1, -30, 0, 30),
+	Position = UDim2.new(0, 20, 0, 15),
+	BackgroundTransparency = 1,
+	Text = "Graves Hub Changelog",
+	TextColor3 = Theme.TextPrimary,
+	Font = FontBold,
+	TextSize = 22,
+	TextXAlignment = Enum.TextXAlignment.Left,
+	Parent = headerCard
+})
+
+create("TextLabel", {
+	Size = UDim2.new(1, -30, 0, 20),
+	Position = UDim2.new(0, 20, 0, 48),
+	BackgroundTransparency = 1,
+	Text = "Track all updates and new features",
+	TextColor3 = Color3.fromRGB(230, 220, 255),
+	Font = Font,
+	TextSize = 13,
+	TextXAlignment = Enum.TextXAlignment.Left,
+	Parent = headerCard
+})
+
+-- Build each update entry
+for _, entry in ipairs(UpdateLog) do
+	local entryFrame = create("Frame", {
+		Size = UDim2.new(1, 0, 0, 40 + (#entry.Changes * 26)),
+		BackgroundColor3 = Theme.Card,
+		Parent = updatePage
+	})
+	addCorner(entryFrame, 10)
+	addStroke(entryFrame, Theme.Border, 1)
+	
+	-- Left accent strip
+	local strip = create("Frame", {
+		Size = UDim2.new(0, 4, 1, 0),
+		BackgroundColor3 = Theme.Accent,
+		BorderSizePixel = 0,
+		Parent = entryFrame
+	})
+	addCorner(strip, 2)
+	
+	-- Version label
+	create("TextLabel", {
+		Size = UDim2.new(0, 150, 0, 26),
+		Position = UDim2.new(0, 20, 0, 12),
+		BackgroundTransparency = 1,
+		Text = entry.Version,
+		TextColor3 = Theme.TextPrimary,
+		Font = FontBold,
+		TextSize = 16,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = entryFrame
+	})
+	
+	-- Date label
+	create("TextLabel", {
+		Size = UDim2.new(0, 200, 0, 26),
+		Position = UDim2.new(1, -220, 0, 12),
+		BackgroundTransparency = 1,
+		Text = entry.Date,
+		TextColor3 = Theme.TextSecondary,
+		Font = Font,
+		TextSize = 12,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		Parent = entryFrame
+	})
+	
+	-- Tag badge
+	local tagBadge = create("Frame", {
+		Size = UDim2.new(0, 70, 0, 22),
+		Position = UDim2.new(1, -300, 0, 14),
+		BackgroundColor3 = entry.TagColor,
+		Parent = entryFrame
+	})
+	addCorner(tagBadge, 6)
+	create("TextLabel", {
+		Size = UDim2.new(1, 0, 1, 0),
+		BackgroundTransparency = 1,
+		Text = entry.Tag,
+		TextColor3 = Theme.TextPrimary,
+		Font = FontBold,
+		TextSize = 10,
+		Parent = tagBadge
+	})
+	
+	-- Divider
+	create("Frame", {
+		Size = UDim2.new(1, -40, 0, 1),
+		Position = UDim2.new(0, 20, 0, 42),
+		BackgroundColor3 = Theme.Border,
+		BorderSizePixel = 0,
+		Parent = entryFrame
+	})
+	
+	-- Changes list
+	for i, change in ipairs(entry.Changes) do
+		local bullet = create("TextLabel", {
+			Size = UDim2.new(0, 12, 0, 22),
+			Position = UDim2.new(0, 22, 0, 44 + ((i - 1) * 26)),
+			BackgroundTransparency = 1,
+			Text = "•",
+			TextColor3 = entry.TagColor,
+			Font = FontBold,
+			TextSize = 16,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			Parent = entryFrame
+		})
+		create("TextLabel", {
+			Size = UDim2.new(1, -60, 0, 22),
+			Position = UDim2.new(0, 40, 0, 44 + ((i - 1) * 26)),
+			BackgroundTransparency = 1,
+			Text = change,
+			TextColor3 = Theme.TextSecondary,
+			Font = Font,
+			TextSize = 13,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			Parent = entryFrame
+		})
+	end
+end
+
+-- Footer credit
+local footer = create("Frame", {
+	Size = UDim2.new(1, 0, 0, 60),
+	BackgroundTransparency = 1,
+	Parent = updatePage
+})
+create("TextLabel", {
+	Size = UDim2.new(1, 0, 0, 20),
+	Position = UDim2.new(0, 0, 0, 10),
+	BackgroundTransparency = 1,
+	Text = "Graves Hub • Premium ESP",
+	TextColor3 = Theme.TextSecondary,
+	Font = FontBold,
+	TextSize = 12,
+	Parent = footer
+})
+create("TextLabel", {
+	Size = UDim2.new(1, 0, 0, 16),
+	Position = UDim2.new(0, 0, 0, 30),
+	BackgroundTransparency = 1,
+	Text = "Thank you for using Graves Hub",
+	TextColor3 = Theme.TextSecondary,
+	Font = Font,
+	TextSize = 11,
+	Parent = footer
+})
 
 -- ==========================================================
 -- ESP LOGIC
@@ -793,4 +1048,4 @@ RunService.RenderStepped:Connect(function()
 	end
 end)
 
-print("Graves Hub Loaded. Key: 123gravehub")
+print("Graves Hub v2.0.0 Loaded - No key required")
