@@ -1,11 +1,12 @@
 -- ==========================================================
--- GRAVES HUB - ULTIMATE ESP EDITION (NO KEY + UPDATES)
+-- GRAVES HUB - ULTIMATE ESP EDITION (NO KEY + UPDATES + DISCORD)
 -- ==========================================================
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
+local GuiService = game:GetService("GuiService")
 local Camera = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
 
@@ -28,10 +29,22 @@ local Config = {
 
 local UpdateLog = {
 	{
-		Version = "v2.0.0",
+		Version = "v2.1.0",
 		Date = "Latest",
 		Tag = "NEW",
 		TagColor = Color3.fromRGB(50, 205, 50),
+		Changes = {
+			"Added Discord integration tab",
+			"Added 'Join Server' popup modal",
+			"One-click Discord invite redirect",
+			"Invite auto-copied to clipboard"
+		}
+	},
+	{
+		Version = "v2.0.0",
+		Date = "Previous",
+		Tag = "UPDATE",
+		TagColor = Color3.fromRGB(150, 80, 255),
 		Changes = {
 			"Removed key verification system",
 			"Added Update Log tab",
@@ -44,7 +57,7 @@ local UpdateLog = {
 		Version = "v1.5.0",
 		Date = "Previous",
 		Tag = "IMPROVED",
-		TagColor = Color3.fromRGB(150, 80, 255),
+		TagColor = Color3.fromRGB(100, 150, 255),
 		Changes = {
 			"Added health bar ESP",
 			"Added distance display",
@@ -78,11 +91,14 @@ local Theme = {
 	Green = Color3.fromRGB(50, 205, 50),
 	Red = Color3.fromRGB(255, 65, 65),
 	Yellow = Color3.fromRGB(255, 200, 60),
-	Border = Color3.fromRGB(38, 38, 45)
+	Border = Color3.fromRGB(38, 38, 45),
+	Discord = Color3.fromRGB(88, 101, 242),
+	DiscordDark = Color3.fromRGB(60, 70, 180)
 }
 
 local Font = Enum.Font.Gotham
 local FontBold = Enum.Font.GothamBold
+local DISCORD_INVITE = "https://discord.gg/cWZKMMMrfY"
 
 -- ==========================================================
 -- UTILITIES
@@ -273,7 +289,6 @@ task.spawn(function()
 	fadeOut.Completed:Wait()
 	loadingFrame:Destroy()
 	
-	-- Show main UI directly
 	toggleBtn.Visible = true
 	mainFrame.Visible = true
 	mainFrame.Size = UDim2.new(0, 0, 0, 0)
@@ -365,7 +380,7 @@ addCorner(versionBadge, 6)
 create("TextLabel", {
 	Size = UDim2.new(1, 0, 1, 0),
 	BackgroundTransparency = 1,
-	Text = "v2.0.0",
+	Text = "v2.1.0",
 	TextColor3 = Theme.TextPrimary,
 	Font = FontBold,
 	TextSize = 11,
@@ -405,7 +420,7 @@ create("TextLabel", {
 
 -- Tab buttons container
 local tabContainer = create("Frame", {
-	Size = UDim2.new(1, -20, 0, 120),
+	Size = UDim2.new(1, -20, 0, 170),
 	Position = UDim2.new(0, 10, 0, 50),
 	BackgroundTransparency = 1,
 	Parent = sidebar
@@ -452,6 +467,20 @@ local updatePage = create("ScrollingFrame", {
 })
 create("UIListLayout", { Padding = UDim.new(0, 14), SortOrder = Enum.SortOrder.LayoutOrder, Parent = updatePage })
 
+-- Discord Page
+local discordPage = create("ScrollingFrame", {
+	Name = "DiscordPage", 
+	Size = UDim2.new(1, 0, 1, 0), 
+	BackgroundTransparency = 1, 
+	BorderSizePixel = 0,
+	ScrollBarThickness = 4, 
+	ScrollBarImageColor3 = Theme.Border, 
+	CanvasSize = UDim2.new(0, 0, 0, 0), 
+	Visible = false,
+	Parent = contentArea
+})
+create("UIListLayout", { Padding = UDim.new(0, 14), SortOrder = Enum.SortOrder.LayoutOrder, Parent = discordPage })
+
 -- ==========================================================
 -- TAB BUTTON CREATOR
 -- ==========================================================
@@ -470,7 +499,6 @@ local function createTabButton(text, icon, order, tabName)
 	addCorner(btn, 10)
 	addStroke(btn, Theme.Border, 1)
 	
-	-- Accent indicator (left bar)
 	local indicator = create("Frame", {
 		Size = UDim2.new(0, 3, 0, 0),
 		Position = UDim2.new(0, 0, 0.5, 0),
@@ -540,6 +568,7 @@ local function createTabButton(text, icon, order, tabName)
 		
 		espPage.Visible = (tabName == "ESP")
 		updatePage.Visible = (tabName == "Update")
+		discordPage.Visible = (tabName == "Discord")
 	end)
 	
 	tabButtons[tabName] = { setActive = setActive }
@@ -549,6 +578,7 @@ end
 
 createTabButton("ESP Settings", "◆", 1, "ESP")
 createTabButton("Update Log", "★", 2, "Update")
+createTabButton("Discord", "◈", 3, "Discord")
 
 -- ==========================================================
 -- COMPONENTS
@@ -716,8 +746,6 @@ makeColorSlider(blueBtn, blueFill, 3)
 -- ==========================================================
 -- POPULATE UPDATE LOG PAGE
 -- ==========================================================
-
--- Header card
 local headerCard = create("Frame", {
 	Size = UDim2.new(1, 0, 0, 90),
 	BackgroundColor3 = Theme.Card,
@@ -726,12 +754,11 @@ local headerCard = create("Frame", {
 addCorner(headerCard, 10)
 addStroke(headerCard, Theme.Border, 1)
 
-local headerGradient = create("UIGradient", {
+create("UIGradient", {
 	Color = ColorSequence.new(Theme.Accent, Theme.AccentDark),
 	Rotation = 45,
 	Parent = headerCard
 })
-create("UICorner", { CornerRadius = UDim.new(0, 10), Parent = headerCard })
 
 create("TextLabel", {
 	Size = UDim2.new(1, -30, 0, 30),
@@ -757,7 +784,6 @@ create("TextLabel", {
 	Parent = headerCard
 })
 
--- Build each update entry
 for _, entry in ipairs(UpdateLog) do
 	local entryFrame = create("Frame", {
 		Size = UDim2.new(1, 0, 0, 40 + (#entry.Changes * 26)),
@@ -767,16 +793,14 @@ for _, entry in ipairs(UpdateLog) do
 	addCorner(entryFrame, 10)
 	addStroke(entryFrame, Theme.Border, 1)
 	
-	-- Left accent strip
 	local strip = create("Frame", {
 		Size = UDim2.new(0, 4, 1, 0),
-		BackgroundColor3 = Theme.Accent,
+		BackgroundColor3 = entry.TagColor,
 		BorderSizePixel = 0,
 		Parent = entryFrame
 	})
 	addCorner(strip, 2)
 	
-	-- Version label
 	create("TextLabel", {
 		Size = UDim2.new(0, 150, 0, 26),
 		Position = UDim2.new(0, 20, 0, 12),
@@ -789,7 +813,6 @@ for _, entry in ipairs(UpdateLog) do
 		Parent = entryFrame
 	})
 	
-	-- Date label
 	create("TextLabel", {
 		Size = UDim2.new(0, 200, 0, 26),
 		Position = UDim2.new(1, -220, 0, 12),
@@ -802,7 +825,6 @@ for _, entry in ipairs(UpdateLog) do
 		Parent = entryFrame
 	})
 	
-	-- Tag badge
 	local tagBadge = create("Frame", {
 		Size = UDim2.new(0, 70, 0, 22),
 		Position = UDim2.new(1, -300, 0, 14),
@@ -820,7 +842,6 @@ for _, entry in ipairs(UpdateLog) do
 		Parent = tagBadge
 	})
 	
-	-- Divider
 	create("Frame", {
 		Size = UDim2.new(1, -40, 0, 1),
 		Position = UDim2.new(0, 20, 0, 42),
@@ -829,9 +850,8 @@ for _, entry in ipairs(UpdateLog) do
 		Parent = entryFrame
 	})
 	
-	-- Changes list
 	for i, change in ipairs(entry.Changes) do
-		local bullet = create("TextLabel", {
+		create("TextLabel", {
 			Size = UDim2.new(0, 12, 0, 22),
 			Position = UDim2.new(0, 22, 0, 44 + ((i - 1) * 26)),
 			BackgroundTransparency = 1,
@@ -856,7 +876,6 @@ for _, entry in ipairs(UpdateLog) do
 	end
 end
 
--- Footer credit
 local footer = create("Frame", {
 	Size = UDim2.new(1, 0, 0, 60),
 	BackgroundTransparency = 1,
@@ -882,6 +901,314 @@ create("TextLabel", {
 	TextSize = 11,
 	Parent = footer
 })
+
+-- ==========================================================
+-- POPULATE DISCORD PAGE
+-- ==========================================================
+local discordHero = create("Frame", {
+	Size = UDim2.new(1, 0, 0, 160),
+	BackgroundColor3 = Theme.Card,
+	Parent = discordPage
+})
+addCorner(discordHero, 12)
+addStroke(discordHero, Theme.Border, 1)
+
+create("UIGradient", {
+	Color = ColorSequence.new(Theme.Discord, Theme.DiscordDark),
+	Rotation = 45,
+	Parent = discordHero
+})
+
+create("TextLabel", {
+	Size = UDim2.new(1, -40, 0, 40),
+	Position = UDim2.new(0, 25, 0, 25),
+	BackgroundTransparency = 1,
+	Text = "Join the Graves Hub Discord",
+	TextColor3 = Theme.TextPrimary,
+	Font = FontBold,
+	TextSize = 26,
+	TextXAlignment = Enum.TextXAlignment.Left,
+	Parent = discordHero
+})
+
+create("TextLabel", {
+	Size = UDim2.new(1, -40, 0, 60),
+	Position = UDim2.new(0, 25, 0, 70),
+	BackgroundTransparency = 1,
+	Text = "Get the latest updates, report bugs, request features, and hang out with the community. Click below to join our server!",
+	TextColor3 = Color3.fromRGB(230, 230, 255),
+	Font = Font,
+	TextSize = 14,
+	TextWrapped = true,
+	TextXAlignment = Enum.TextXAlignment.Left,
+	TextYAlignment = Enum.TextYAlignment.Top,
+	Parent = discordHero
+})
+
+local joinBtn = create("TextButton", {
+	Size = UDim2.new(1, 0, 0, 65),
+	BackgroundColor3 = Theme.Discord,
+	Text = "",
+	Parent = discordPage
+})
+addCorner(joinBtn, 12)
+addStroke(joinBtn, Theme.DiscordDark, 1)
+
+create("TextLabel", {
+	Size = UDim2.new(0, 50, 1, 0),
+	Position = UDim2.new(0, 15, 0, 0),
+	BackgroundTransparency = 1,
+	Text = "◈",
+	TextColor3 = Theme.TextPrimary,
+	Font = FontBold,
+	TextSize = 26,
+	Parent = joinBtn
+})
+
+create("TextLabel", {
+	Size = UDim2.new(1, -90, 1, 0),
+	Position = UDim2.new(0, 70, 0, 0),
+	BackgroundTransparency = 1,
+	Text = "Click to Join Discord Server",
+	TextColor3 = Theme.TextPrimary,
+	Font = FontBold,
+	TextSize = 17,
+	TextXAlignment = Enum.TextXAlignment.Left,
+	Parent = joinBtn
+})
+
+applyHover(joinBtn, Theme.Discord, Color3.fromRGB(110, 122, 255))
+
+local function createInfoCard(title, desc, iconChar)
+	local card = create("Frame", {
+		Size = UDim2.new(1, 0, 0, 75),
+		BackgroundColor3 = Theme.Card,
+		Parent = discordPage
+	})
+	addCorner(card, 10)
+	addStroke(card, Theme.Border, 1)
+	
+	create("TextLabel", {
+		Size = UDim2.new(0, 45, 1, 0),
+		Position = UDim2.new(0, 15, 0, 0),
+		BackgroundTransparency = 1,
+		Text = iconChar,
+		TextColor3 = Theme.Accent,
+		Font = FontBold,
+		TextSize = 22,
+		Parent = card
+	})
+	
+	create("TextLabel", {
+		Size = UDim2.new(1, -80, 0, 22),
+		Position = UDim2.new(0, 65, 0, 14),
+		BackgroundTransparency = 1,
+		Text = title,
+		TextColor3 = Theme.TextPrimary,
+		Font = FontBold,
+		TextSize = 15,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = card
+	})
+	
+	create("TextLabel", {
+		Size = UDim2.new(1, -80, 0, 30),
+		Position = UDim2.new(0, 65, 0, 36),
+		BackgroundTransparency = 1,
+		Text = desc,
+		TextColor3 = Theme.TextSecondary,
+		Font = Font,
+		TextSize = 12,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextYAlignment = Enum.TextYAlignment.Top,
+		TextWrapped = true,
+		Parent = card
+	})
+	
+	applyHover(card, Theme.Card, Theme.CardHover)
+	return card
+end
+
+createInfoCard("Latest Updates", "Be the first to know when new versions drop.", "★")
+createInfoCard("Community Support", "Get help from staff and other users.", "◆")
+createInfoCard("Script Requests", "Request features and vote on what's next.", "✦")
+
+local linkCard = create("Frame", {
+	Size = UDim2.new(1, 0, 0, 70),
+	BackgroundColor3 = Theme.Card,
+	Parent = discordPage
+})
+addCorner(linkCard, 10)
+addStroke(linkCard, Theme.Border, 1)
+
+create("TextLabel", {
+	Size = UDim2.new(1, -40, 0, 20),
+	Position = UDim2.new(0, 20, 0, 12),
+	BackgroundTransparency = 1,
+	Text = "Server Invite",
+	TextColor3 = Theme.TextSecondary,
+	Font = FontBold,
+	TextSize = 11,
+	TextXAlignment = Enum.TextXAlignment.Left,
+	Parent = linkCard
+})
+
+local inviteLabel = create("TextButton", {
+	Size = UDim2.new(1, -40, 0, 26),
+	Position = UDim2.new(0, 20, 0, 34),
+	BackgroundTransparency = 1,
+	Text = DISCORD_INVITE,
+	TextColor3 = Color3.fromRGB(120, 160, 255),
+	Font = Font,
+	TextSize = 14,
+	TextXAlignment = Enum.TextXAlignment.Left,
+	AutoButtonColor = false,
+	Parent = linkCard
+})
+
+-- ==========================================================
+-- DISCORD POPUP MODAL
+-- ==========================================================
+local popupOverlay = create("Frame", {
+	Name = "DiscordPopup",
+	Size = UDim2.new(1, 0, 1, 0),
+	BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+	BackgroundTransparency = 1,
+	Visible = false,
+	ZIndex = 50,
+	Parent = mainFrame
+})
+
+local popupCard = create("Frame", {
+	Size = UDim2.new(0, 420, 0, 240),
+	Position = UDim2.new(0.5, 0, 0.5, 0),
+	AnchorPoint = Vector2.new(0.5, 0.5),
+	BackgroundColor3 = Theme.Card,
+	ZIndex = 51,
+	Parent = popupOverlay
+})
+addCorner(popupCard, 14)
+addStroke(popupCard, Theme.Discord, 2)
+
+create("TextLabel", {
+	Size = UDim2.new(1, -40, 0, 32),
+	Position = UDim2.new(0, 20, 0, 22),
+	BackgroundTransparency = 1,
+	Text = "Join Graves Hub Discord",
+	TextColor3 = Theme.TextPrimary,
+	Font = FontBold,
+	TextSize = 20,
+	TextXAlignment = Enum.TextXAlignment.Left,
+	ZIndex = 52,
+	Parent = popupCard
+})
+
+create("TextLabel", {
+	Size = UDim2.new(1, -40, 0, 80),
+	Position = UDim2.new(0, 20, 0, 65),
+	BackgroundTransparency = 1,
+	Text = "You are about to be redirected to our Discord server. You will be asked to join the server once the page opens.\n\n" .. DISCORD_INVITE,
+	TextColor3 = Theme.TextSecondary,
+	Font = Font,
+	TextSize = 13,
+	TextWrapped = true,
+	TextXAlignment = Enum.TextXAlignment.Left,
+	TextYAlignment = Enum.TextYAlignment.Top,
+	ZIndex = 52,
+	Parent = popupCard
+})
+
+local confirmBtn = create("TextButton", {
+	Size = UDim2.new(0, 175, 0, 42),
+	Position = UDim2.new(1, -20, 1, -20),
+	AnchorPoint = Vector2.new(1, 1),
+	BackgroundColor3 = Theme.Discord,
+	Text = "Join Server",
+	TextColor3 = Theme.TextPrimary,
+	Font = FontBold,
+	TextSize = 14,
+	ZIndex = 52,
+	Parent = popupCard
+})
+addCorner(confirmBtn, 8)
+applyHover(confirmBtn, Theme.Discord, Color3.fromRGB(110, 122, 255))
+
+local cancelBtn = create("TextButton", {
+	Size = UDim2.new(0, 120, 0, 42),
+	Position = UDim2.new(1, -210, 1, -20),
+	AnchorPoint = Vector2.new(1, 1),
+	BackgroundColor3 = Theme.Border,
+	Text = "Cancel",
+	TextColor3 = Theme.TextPrimary,
+	Font = FontBold,
+	TextSize = 14,
+	ZIndex = 52,
+	Parent = popupCard
+})
+addCorner(cancelBtn, 8)
+applyHover(cancelBtn, Theme.Border, Theme.CardHover)
+
+local function showPopup()
+	popupOverlay.Visible = true
+	popupOverlay.BackgroundTransparency = 1
+	popupCard.Size = UDim2.new(0, 0, 0, 0)
+	TweenService:Create(popupOverlay, TweenInfo.new(0.25), {BackgroundTransparency = 0.55}):Play()
+	TweenService:Create(popupCard, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 420, 0, 240)}):Play()
+end
+
+local function hidePopup(callback)
+	local tween = TweenService:Create(popupCard, TweenInfo.new(0.2), {Size = UDim2.new(0, 0, 0, 0)})
+	TweenService:Create(popupOverlay, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play()
+	tween:Play()
+	tween.Completed:Connect(function()
+		popupOverlay.Visible = false
+		if callback then callback() end
+	end)
+end
+
+joinBtn.MouseButton1Click:Connect(showPopup)
+inviteLabel.MouseButton1Click:Connect(showPopup)
+
+confirmBtn.MouseButton1Click:Connect(function()
+	hidePopup(function()
+		if setclipboard then
+			pcall(setclipboard, DISCORD_INVITE)
+		end
+		
+		pcall(function()
+			GuiService:OpenBrowserWindow(DISCORD_INVITE)
+		end)
+		
+		local notify = create("TextLabel", {
+			Size = UDim2.new(0, 340, 0, 50),
+			Position = UDim2.new(0.5, 0, 0, 80),
+			AnchorPoint = Vector2.new(0.5, 0),
+			BackgroundColor3 = Theme.Discord,
+			Text = "Discord invite copied! Click the popup to join.",
+			TextColor3 = Theme.TextPrimary,
+			Font = FontBold,
+			TextSize = 13,
+			TextWrapped = true,
+			ZIndex = 60,
+			Parent = screenGui
+		})
+		addCorner(notify, 10)
+		addStroke(notify, Theme.DiscordDark, 1)
+		
+		notify.BackgroundTransparency = 1
+		notify.TextTransparency = 1
+		TweenService:Create(notify, TweenInfo.new(0.3), {BackgroundTransparency = 0, TextTransparency = 0}):Play()
+		
+		task.wait(3)
+		local fade = TweenService:Create(notify, TweenInfo.new(0.4), {BackgroundTransparency = 1, TextTransparency = 1})
+		fade:Play()
+		fade.Completed:Connect(function() notify:Destroy() end)
+	end)
+end)
+
+cancelBtn.MouseButton1Click:Connect(function()
+	hidePopup()
+end)
 
 -- ==========================================================
 -- ESP LOGIC
@@ -1048,4 +1375,4 @@ RunService.RenderStepped:Connect(function()
 	end
 end)
 
-print("Graves Hub v2.0.0 Loaded - No key required")
+print("Graves Hub v2.1.0 Loaded - No key required")
